@@ -22,11 +22,14 @@ angular.module('gettext').factory('gettextCatalog', function (gettextPlurals, ge
     var isHTMLModified = (angular.element('<span>' + test + '</span>').html() !== test);
 
     var prefixDebug = function (string) {
-        if (catalog.debug && catalog.currentLanguage !== catalog.baseLanguage) {
-            return catalog.debugPrefix + string;
-        } else {
+        if (catalog.currentLanguage === catalog.baseLanguage) {
             return string;
         }
+        catalog.onTranslationMissing(string);
+        if (catalog.debug) {
+            return catalog.debugPrefix + string;
+        }
+        return string;
     };
 
     var addTranslatedMarkers = function (string) {
@@ -48,6 +51,14 @@ angular.module('gettext').factory('gettextCatalog', function (gettextPlurals, ge
     }
 
     catalog = {
+        /**
+         * @ngdoc property
+         * @name gettextCatalog#onTranslationMissing
+         * @public
+         * @type {Function} angular.noop
+         * @description Hook to be called when translation for the string was not found. Useful for logging.
+         */
+        onTranslationMissing: angular.noop,
         /**
          * @ngdoc property
          * @name gettextCatalog#debug
